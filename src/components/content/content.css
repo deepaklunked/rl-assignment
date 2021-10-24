@@ -1,0 +1,22 @@
+.content-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin: 10px;
+}
+
+.content {
+    height: 100px;
+    width: 400px;
+    padding: 12px;
+    margin: 12px;
+    display: flex;
+    flex-direction: column;
+
+    border: 1px solid;
+}
+
+.content > span {
+    flex-grow: 1;
+}
