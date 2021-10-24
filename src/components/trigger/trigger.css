@@ -1,0 +1,53 @@
+.trigger-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.trigger-with-reactions {
+    position: relative;
+}
+
+.trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--trigger-size);
+    width: var(--trigger-size);
+    background-color: var(--trigger-bg);
+    border: 1px solid var(--white);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.trigger:hover {
+    background-color: var(--secondary-grey);
+}
+
+.trigger:active {
+    transform: scale(0.95) translateY(2px) !important;
+    transition: transform 250ms linear;
+}
+
+.added-reaction {
+    background-color: var(--reaction-bg);
+    border: 1px solid var(--white);
+    border-radius: var(--pill-border-radius);
+    height: var(--reaction-size);
+    padding: var(--reaction-padding);
+    margin-right: var(--reaction-padding);
+    transition: background-color 150ms linear, border 200ms linear;
+}
+
+.added-reaction.current-user {
+    background-color: var(--reaction-active-bg);
+    border: 1px solid var(--blue-accent);
+    cursor: pointer;
+}
+
+.added-reaction > .emoji {
+    display: flex;
+    align-items: center;
+    font-size: var(--reaction-added-font);
+}

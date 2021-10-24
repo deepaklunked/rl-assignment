@@ -1,0 +1,7 @@
+.tooltip {
+    background-color: var(--tooltip-bg);
+    border-radius: var(--pill-border-radius);
+    color: var(--white);
+    font-size: var(--tooltip-font-size);
+    padding: 4px 8px;
+}
