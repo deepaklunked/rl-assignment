@@ -1,0 +1,30 @@
+.reaction {
+    position: relative; 
+    display: flex;
+    align-items: center;  
+}
+
+.reaction .tooltip {
+    position: absolute;
+    top: -125%;
+}
+
+.reaction > .emoji {
+    display: flex;
+    align-items: center;
+    margin: var(--reaction-padding);
+    height: var(--reaction-size);
+    width: var(--reaction-size);
+    font-size: var(--reaction-list-font);
+    transition: transform 150ms linear;
+}
+
+.reaction > .emoji.hovered {
+    transform: scale(2) translateY(-8px);
+    cursor: pointer;
+}
+
+.reaction > .emoji:active {
+    transform: scale(1.9) translateY(-6px) !important;
+    transition: transform 250ms linear;
+}
