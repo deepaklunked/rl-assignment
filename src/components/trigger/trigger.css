@@ -31,6 +31,8 @@
 } */
 
 .added-reaction {
+    display: flex;
+    align-items: center;
     background-color: var(--reaction-bg);
     border: 1px solid var(--white);
     border-radius: var(--pill-border-radius);
