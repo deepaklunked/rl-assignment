@@ -28,8 +28,9 @@ class Trigger extends Component {
         await this.getUserReactions();
     }
 
-    handleReaction = async (item, contentId) => {
+    handleReaction = async (item) => {
         const { contentReactions, newReactions } = this.state;
+        const { contentId } = this.props;
         await new Promise((resolve, reject) => {
             contentReactions.forEach((x) => {
                 if (x.id === item.id) {
@@ -152,10 +153,9 @@ class Trigger extends Component {
 
     render() {
         const { isTriggered, showSummary, contentReactions, userContentReactions, navList } = this.state;
-        const { contentId, users, reactions, userReactions } = this.props;
+        const { users, reactions, userReactions } = this.props;
         const summary = (
             <Summary
-                contentId={contentId}
                 reactions={reactions}
                 users={users}
                 userReactions={userReactions}
@@ -175,7 +175,7 @@ class Trigger extends Component {
                         className={classes}
                         onClick={() => {
                             if (item.isCurrentUser) {
-                                this.handleReaction(item, contentId)
+                                this.handleReaction(item)
                             }
                         }}
                         onMouseEnter={() => {
@@ -200,7 +200,6 @@ class Trigger extends Component {
                     <div className="trigger-with-reactions">
                         {isTriggered ? (
                             <Reactions
-                                contentId={contentId}
                                 reactions={reactions}
                                 handleReaction={this.handleReaction}
                             />) : ""

@@ -4,11 +4,10 @@ import Reaction from "../reaction/reaction";
 
 class Reactions extends Component {
     render() {
-        const { contentId, reactions } = this.props;
+        const { reactions } = this.props;
         const reactionsList = reactions && reactions.map(item => {
             return (
                 <Reaction
-                    contentId={contentId}
                     key={item.id}
                     item={item}
                     handleReaction={this.props.handleReaction}    

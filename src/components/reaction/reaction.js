@@ -20,12 +20,12 @@ class Reaction extends Component {
         this.setState(this.initialState);
     }
 
-    handleClick(id, contentId) {
-        this.props.handleReaction(id, contentId);
+    handleClick(id) {
+        this.props.handleReaction(id);
     }
 
     render() {
-        const { item, contentId } = this.props
+        const { item } = this.props
         const { name, emoji } = item;
         const { isHovered } = this.state;
         const emojiClasses = "emoji" + (isHovered ? " hovered": "");
@@ -34,7 +34,7 @@ class Reaction extends Component {
                 className="reaction"
                 onMouseEnter={() => {this.showTooltip()}}
                 onMouseLeave={() => {this.hideTooltip()}}
-                onClick={() => {this.handleClick(item, contentId)}}
+                onClick={() => {this.handleClick(item)}}
             >
                 {isHovered ? 
                     <Tooltip content={name} /> : ""   
