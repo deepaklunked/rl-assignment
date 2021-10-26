@@ -27,7 +27,7 @@ class Content extends Component {
                 (userReaction.reaction_id === reaction.id) && userReaction.content_id === id
             );
             item.count = filteredReactions.length;
-            contentReactions.add(item);
+            if (item.count > 0) contentReactions.add(item);
         });
         userReactions.forEach(userReaction => {
             const item = {};
