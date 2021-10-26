@@ -1,44 +1,28 @@
 import React, { Component } from "react";
 import "./summary.css";
-import Navbar from "../navbar/navbar";
 
 const Title = (props) => {
     return <div className="title">{props.content}</div>
 }
 
 class Summary extends Component {
-    initialState = {
-        userContentReactions: []
-    }
-
-    state = this.initialState
-    
-    componentDidMount() {
-        console.log("summary componentDidMount");
-        // const userContentReactions = Array.from(this.props.userContentReactions);
-        // const list =userContentReactions.map(item => {
-        //     item.isVisible = true;
-        //     item.user.fullName = `${item.user.first_name} ${item.user.last_name}`
-        //     return item;
-        // })
-        // this.setState({ userContentReactions: list });
-        this.setState({
-            userContentReactions: this.props.userContentReactions
-        })
-    }
-
-    filterContent = (emoji) => {
-        const { userContentReactions } = this.state;
-        userContentReactions.forEach(item => {
-            item.isVisible = (emoji === "All") ? true : (item.reaction.emoji === emoji);
-        })
-        this.setState({ userContentReactions });
-    }
-
     render() {
-        console.log("summary render");
-        const { contentReactions } = this.props;
-        const { userContentReactions } = this.state;
+        const { filterContent, userContentReactions, navList, showSummary } = this.props;
+        const navbar = navList.map((item, index) => {
+            if (parseInt(item.content.split(" ")[2]) === 0) {
+                return "";
+            }
+            const classes = "nav-item" + (item.isActive ? " active" : "");
+            return (
+                <div
+                    key={index}
+                    className={classes}
+                    onClick={() => filterContent(item.content.split(" ")[0])}
+                >
+                    {item.content}
+                </div>
+            )
+        });
         const details = Array.from(userContentReactions).map(item => {
             if (item.isVisible) {
                 return (
@@ -56,13 +40,10 @@ class Summary extends Component {
             }
         })
 
-        return <div className="summary">
+        return <div className="summary" onMouseEnter={showSummary}>
             <Title content="Reactions" />
             <div className="nav-list">
-                <Navbar
-                    contentReactions={contentReactions}
-                    filterContent={this.filterContent}
-                />
+                {navbar}
             </div>
             <div className="user-reactions">
                 {details}

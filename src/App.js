@@ -9,7 +9,6 @@ class App extends Component {
 	initialState = {
 		reactions: null,
 		users: null,
-		userReactions: null,
         content: [1, 2] // assuming there are only two types of content
 	}
 
@@ -26,25 +25,23 @@ class App extends Component {
 				users: response.data
 			})
 		})
-		axios.get(`${BASE_URL}/user_content_reactions`).then((response) => {
-			this.setState({
-				userReactions: response.data
-			})
-		})  
 	}
 
 	render() {
-		const { users, reactions, userReactions } = this.state;
+		const { users, reactions } = this.state;
         const content = this.state.content.map((id) => {
-            return <Content
-                key={id}
-                id={id}
-                users={users}
-                reactions={reactions}
-                userReactions={userReactions}
-            />
+            return (
+                <div key={id}>
+                    <span>Content {id}</span>
+                    <Content
+                        id={id}
+                        users={users}
+                        reactions={reactions}
+                    />
+                </div>
+            )
         });
-        const showElements = (users && reactions && userReactions)
+        const showElements = (users && reactions)
 		return (
 			<div className="App">
                 { showElements ? content : "Loading.." }
