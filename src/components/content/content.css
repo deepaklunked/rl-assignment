@@ -7,12 +7,10 @@
 }
 
 .content {
-    height: 100px;
-    width: 400px;
-    padding: 12px;
-    margin: 12px;
+    height: var(--summary-height);
     display: flex;
     flex-direction: column;
+    justify-content: center;
 
     border: 1px solid;
 }
