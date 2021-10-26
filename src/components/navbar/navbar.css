@@ -5,6 +5,7 @@
 
 .summary .nav-list > .nav-item {
     display: flex;
+    align-items: center;
     justify-content: flex-start;
     padding: var(--nav-item-padding) var(--summary-padding);
     border-bottom: 2px solid var(--nav-item-border);
