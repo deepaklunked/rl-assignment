@@ -25,10 +25,10 @@
     background-color: var(--secondary-grey);
 }
 
-.trigger:active {
-    transform: scale(0.95) translateY(2px) !important;
+/* .trigger:active {
+    transform: scale(0.95) !important;
     transition: transform 250ms linear;
-}
+} */
 
 .added-reaction {
     background-color: var(--reaction-bg);
