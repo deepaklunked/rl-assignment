@@ -40,15 +40,17 @@ class Summary extends Component {
             }
         })
 
-        return <div className="summary" onMouseEnter={showSummary}>
-            <Title content="Reactions" />
-            <div className="nav-list">
-                {navbar}
+        return (
+            <div className="summary" onMouseEnter={showSummary}>
+                <Title content="Reactions" />
+                <div className="nav-list">
+                    {navbar}
+                </div>
+                <div className="user-reactions">
+                    {details}
+                </div>
             </div>
-            <div className="user-reactions">
-                {details}
-            </div>
-        </div>
+        )
     }
 }
 

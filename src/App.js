@@ -32,7 +32,6 @@ class App extends Component {
         const content = this.state.content.map((id) => {
             return (
                 <div key={id}>
-                    <span>Content {id}</span>
                     <Content
                         id={id}
                         users={users}
