@@ -18,6 +18,7 @@ class Trigger extends Component {
         userContentReactions: new Set(),
         navList: [{
             content: 'All',
+            count: 0,
             isActive: true
         }]
     }
@@ -78,7 +79,7 @@ class Trigger extends Component {
     handleNavigation = (item) => {
         const { navList } = this.state;
         navList.forEach(nav => {
-            nav.isActive = (nav.content.split(" ")[0] === item);
+            nav.isActive = (nav.content === item);
         })
         this.setState( {navList });
     }
@@ -99,7 +100,8 @@ class Trigger extends Component {
         const { userContentReactions } = this.state;
         userContentReactions.forEach(item => {
             item.isVisible = (emoji === "All") ? true : (item.reaction.emoji === emoji);
-        })
+        });
+        this.setState({ userContentReactions });
         this.handleNavigation(emoji);
         this.showSummary();
     }
@@ -144,7 +146,8 @@ class Trigger extends Component {
         }
         const list = Array.from(contentReactions).map(item => {
             return ({
-                content: `${item.emoji} · ${item.count}`,
+                content: item.emoji,
+                count: item.count,
                 isActive: false 
             });
         })
@@ -153,13 +156,9 @@ class Trigger extends Component {
 
     render() {
         const { isTriggered, showSummary, contentReactions, userContentReactions, navList } = this.state;
-        const { users, reactions, userReactions } = this.props;
+        const { reactions } = this.props;
         const summary = (
             <Summary
-                reactions={reactions}
-                users={users}
-                userReactions={userReactions}
-                contentReactions={contentReactions}
                 userContentReactions={userContentReactions}
                 navList={navList}
                 filterContent={this.filterContent}

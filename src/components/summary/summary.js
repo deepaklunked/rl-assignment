@@ -7,9 +7,9 @@ const Title = (props) => {
 
 class Summary extends Component {
     render() {
-        const { filterContent, userContentReactions, navList, showSummary } = this.props;
+        const { userContentReactions, navList, showSummary, filterContent } = this.props;
         const navbar = navList.map((item, index) => {
-            if (parseInt(item.content.split(" ")[2]) === 0) {
+            if (item.content !== "All" && item.count === 0) {
                 return "";
             }
             const classes = "nav-item" + (item.isActive ? " active" : "");
@@ -17,9 +17,9 @@ class Summary extends Component {
                 <div
                     key={index}
                     className={classes}
-                    onClick={() => filterContent(item.content.split(" ")[0])}
+                    onClick={() => filterContent(item.content)}
                 >
-                    {item.content}
+                    {index === 0 ? item.content : (item.content + " · " + item.count)}
                 </div>
             )
         });
