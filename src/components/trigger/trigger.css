@@ -47,12 +47,12 @@
     padding: var(--reaction-padding);
     margin-right: var(--reaction-padding);
     transition: background-color 150ms linear, border 200ms linear;
+    cursor: pointer;
 }
 
 .added-reaction.current-user {
     background-color: var(--reaction-active-bg);
     border: 1px solid var(--blue-accent);
-    cursor: pointer;
 }
 
 .added-reaction > .emoji {

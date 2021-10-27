@@ -173,11 +173,7 @@ class Trigger extends Component {
                     <div
                         key={item.id}
                         className={classes}
-                        onClick={() => {
-                            if (item.isCurrentUser) {
-                                this.handleReaction(item)
-                            }
-                        }}
+                        onClick={() => { this.handleReaction(item)}}
                         onMouseEnter={() => {
                             this.filterContent(item.emoji)
                         }}
