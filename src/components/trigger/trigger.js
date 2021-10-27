@@ -118,8 +118,8 @@ class Trigger extends Component {
     updateReactionData = () => {
         const { users, reactions } = this.props;
         const { contentReactions, userReactions } = this.state;
+        let { navList } = this.state;
         const userContentReactions = new Set();
-        const { navList } = this.initialState;
         if (Array.from(contentReactions).length === 0) {
             reactions.forEach(reaction => {
                 const item = {};
@@ -129,6 +129,7 @@ class Trigger extends Component {
                 contentReactions.add(item);
             });
         }
+        this.setState({ contentReactions });
         if (Array.from(userContentReactions).length === 0) {
             userReactions.forEach(userReaction => {
                 const item = {};
@@ -144,14 +145,25 @@ class Trigger extends Component {
                 }
             });
         }
-        const list = Array.from(contentReactions).map(item => {
-            return ({
-                content: item.emoji,
-                count: item.count,
-                isActive: false 
-            });
-        })
-        this.setState({ contentReactions, userContentReactions, "navList": navList.concat(list) });
+        this.setState({ userContentReactions });
+        if (navList.length === 1) {
+            const list = Array.from(contentReactions).map(item => {
+                return ({
+                    content: item.emoji,
+                    count: item.count,
+                    isActive: false 
+                });
+            })
+            navList = navList.concat(list);
+        } else {
+            navList.forEach((nav, index) => {
+                if (index !== 0) {
+                    nav.count = (Array.from(contentReactions).find(item => item.emoji === nav.content)).count;
+                }
+            })
+            this.filterContent((navList.find(item => item.isActive === true)).content);
+        }
+        this.setState({ navList });
     }
 
     render() {
