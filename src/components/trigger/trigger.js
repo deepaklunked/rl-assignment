@@ -5,13 +5,16 @@ import Summary from "../summary/summary";
 import Reactions from "../reactions/reactions";
 import axios from "axios";
 import { BASE_URL } from "../../App";
+import Overlay from "../overlay/overlay";
 
 class Trigger extends Component {
     API_URL = `${BASE_URL}/user_content_reactions`;
+    currentUserId = 12 // assumption;
 
     initialState = {
         isTriggered: false,
-        showSummary: false,
+        shouldShowSummary: false,
+        shouldShowOverlay: false,
         userReactions: null,
         contentReactions: new Set(),
         newReactions: new Set(),
@@ -29,52 +32,66 @@ class Trigger extends Component {
         await this.getUserReactions();
     }
 
-    handleReaction = async (item) => {
-        const { contentReactions, newReactions } = this.state;
-        const { contentId } = this.props;
-        await new Promise((resolve, reject) => {
-            contentReactions.forEach((x) => {
-                if (x.id === item.id) {
-                    if (x.isCurrentUser === true) {
-                        const newReaction = Array.from(newReactions).find(x => x.reaction_id === item.id);
-                        axios.delete(`${this.API_URL}/${newReaction.id}`).then(response => {
-                            x.isCurrentUser = false;
-                            x.count--;
-                            newReactions.delete(newReaction);
-                            resolve();
-                        }).catch(e => {
-                            console.log("error in deletion", e)
-                            reject();
-                        });
-                    } else {
-                        axios.post(this.API_URL, {
-                            "user_id": 1, // assuming this is user 1
-                            "content_id" : contentId,
-                            "reaction_id": item.id
-                        }).then(response => {
-                            x.isCurrentUser = true;
-                            x.count++;
-                            newReactions.add(response.data);
-                            this.handleTrigger();
-                            resolve();
-                        }).catch(e => {
-                            console.log("error in creation", e)
-                            reject();
-                        });
+    handleReaction = (item) => {
+        const { contentReactions, newReactions, userContentReactions } = this.state;
+        const { contentId, users, reactions } = this.props;
+        let tempVariableForReaction, apiPromise, newReaction, reactionType;
+        contentReactions.forEach((x) => {
+            if (x.id === item.id) {
+                tempVariableForReaction = x;
+                if (x.isCurrentUser === true) {
+                    reactionType = "delete";
+                    x.isCurrentUser = false;
+                    x.count--;
+                    newReaction = Array.from(newReactions).find(x => x.reaction_id === item.id);
+                    const tempRemoval = Array.from(userContentReactions).find(reaction => 
+                        ((reaction.user_id === this.currentUserId) && (reaction.reaction_id === item.id))
+                    );
+                    userContentReactions.delete(tempRemoval);
+                    apiPromise = axios.delete(`${this.API_URL}/${newReaction.id}`);
+                } else {
+                    reactionType = "add";
+                    x.isCurrentUser = true;
+                    x.count++;
+                    const baseObj = {
+                        "user_id": this.currentUserId,
+                        "content_id" : contentId,
+                        "reaction_id": item.id
                     }
+                    const tempObj = {
+                        ...baseObj,
+                        id: Array.from(userContentReactions).length + (Math.random() * 10),
+                        isVisible: true,
+                        reaction: reactions.find(y => y.id === item.id),
+                        user: users.find(u => u.id === this.currentUserId)
+                    }
+                    userContentReactions.add(tempObj);
+                    apiPromise = axios.post(this.API_URL, baseObj);
                 }
-            })
+            }
         });
-        this.getUserReactions();
-        this.setState({ contentReactions, newReactions });
-	}
-    
-    handleTrigger = () => {
-        const { isTriggered } = this.state;
-        this.setState({
-            "isTriggered": !isTriggered
+        this.setState({ contentReactions, userContentReactions });
+        this.updateReactionData();
+        apiPromise.then(response => {
+            if (reactionType === "delete") {
+                newReactions.delete(newReaction);
+            } else {
+                newReactions.add(response.data);
+            }
+            this.getUserReactions();
+            this.setState({ newReactions });
+        }).catch(error => {
+            console.log("error in submission", error);
+            contentReactions.forEach((x) => {
+                if (x.id === tempVariableForReaction.id) {
+                    x.isCurrentUser = (reactionType === "delete");
+                    x.count = (reactionType === "delete") ? (x.count + 1) : (x.count - 1);
+                }
+            });
+            this.setState({ contentReactions });
+            this.updateReactionData();
         })
-    }
+	}
 
     handleNavigation = (item) => {
         const { navList } = this.state;
@@ -86,14 +103,42 @@ class Trigger extends Component {
 
     showSummary = () => {
         this.setState({
-            "showSummary": true
+            shouldShowSummary: true
         });
+        this.showOverlay();
     }
 
     hideSummary = () => {
         this.setState({
-            "showSummary": false
+            shouldShowSummary: false
         });
+    }
+
+    showReactionsList = () => {
+        this.setState({
+            isTriggered: true
+        });
+        this.showOverlay();
+    }
+
+    hideReactionsList = () => {
+        this.setState({
+            isTriggered: false
+        })
+    }
+
+    showOverlay = () => {
+        this.setState({
+            shouldShowOverlay: true
+        });
+    }
+
+    hideOverlay = () => {
+        this.setState({
+            shouldShowOverlay: false
+        });
+        this.hideSummary();
+        this.hideReactionsList();
     }
 
     filterContent = (emoji) => {
@@ -115,37 +160,49 @@ class Trigger extends Component {
         this.updateReactionData();
     }
 
-    updateReactionData = () => {
-        const { users, reactions } = this.props;
-        const { contentReactions, userReactions } = this.state;
-        let { navList } = this.state;
-        const userContentReactions = new Set();
+    updateContentReactions = () => {
+        const { reactions } = this.props;
+        const { contentReactions, userReactions, newReactions } = this.state;
         if (Array.from(contentReactions).length === 0) {
             reactions.forEach(reaction => {
                 const item = {};
                 Object.assign(item, reaction);
                 const filteredReactions = userReactions.filter(userReaction => (userReaction.reaction_id === reaction.id));
                 item.count = filteredReactions.length;
+                const currentUserReactions = filteredReactions.filter(item => (item.user_id === this.currentUserId ));
+                item.isCurrentUser = (currentUserReactions.length > 0);
+                if (item.isCurrentUser) {
+                    currentUserReactions.forEach(item => { newReactions.add(item) })
+                }
                 contentReactions.add(item);
             });
         }
-        this.setState({ contentReactions });
-        if (Array.from(userContentReactions).length === 0) {
-            userReactions.forEach(userReaction => {
-                const item = {};
-                Object.assign(item, userReaction);
-                const userData = users.find(user => (userReaction.user_id === user.id));
-                const reactionData = reactions.find(reaction => (userReaction.reaction_id === reaction.id));
-                if(userData && reactionData) {
-                    item.user = userData;
-                    item.reaction = reactionData;
-                    item.isVisible = true;
-                    item.user.fullName = `${item.user.first_name} ${item.user.last_name}`
-                    userContentReactions.add(item);
-                }
-            });
-        }
+        this.setState({ contentReactions, newReactions });
+    }
+
+    updateUserContentReactions = () => {
+        const { users, reactions } = this.props;
+        const { userReactions } = this.state;
+        const userContentReactions = new Set();
+        userReactions.forEach(userReaction => {
+            const item = {};
+            Object.assign(item, userReaction);
+            const userData = users.find(user => (userReaction.user_id === user.id));
+            const reactionData = reactions.find(reaction => (userReaction.reaction_id === reaction.id));
+            if(userData && reactionData) {
+                item.user = userData;
+                item.reaction = reactionData;
+                item.isVisible = true;
+                item.user.fullName = `${item.user.first_name} ${item.user.last_name}`
+                userContentReactions.add(item);
+            }
+        });
         this.setState({ userContentReactions });
+    }
+
+    updateNavList = () => {
+        const { shouldShowSummary, contentReactions } = this.state;
+        let { navList } = this.state;
         if (navList.length === 1) {
             const list = Array.from(contentReactions).map(item => {
                 return ({
@@ -161,13 +218,21 @@ class Trigger extends Component {
                     nav.count = (Array.from(contentReactions).find(item => item.emoji === nav.content)).count;
                 }
             })
-            this.filterContent((navList.find(item => item.isActive === true)).content);
+            if (shouldShowSummary) {
+                this.filterContent((navList.find(item => item.isActive === true)).content);
+            }
         }
         this.setState({ navList });
     }
 
+    updateReactionData = () => {
+        this.updateContentReactions();
+        this.updateUserContentReactions();
+        this.updateNavList();  
+    }
+
     render() {
-        const { isTriggered, showSummary, contentReactions, userContentReactions, navList } = this.state;
+        const { isTriggered, shouldShowSummary, shouldShowOverlay, contentReactions, userContentReactions, navList } = this.state;
         const { reactions } = this.props;
         const summary = (
             <Summary
@@ -196,27 +261,31 @@ class Trigger extends Component {
                 return "";
             }
         });
+        const overlay = (
+            <Overlay dismissAction={this.hideOverlay} />
+        )
         return (
-            <div className="trigger-and-summary-container">
-                { showSummary ? summary : ""}
-                <div
-                    className="trigger-wrapper"
-                    onMouseLeave={this.hideSummary}
-                >
-                    {reacted}
-                    <div className="trigger-with-reactions">
-                        {isTriggered ? (
-                            <Reactions
-                                reactions={reactions}
-                                handleReaction={this.handleReaction}
-                            />) : ""
-                        }
-                        <button
-                            className="trigger"
-                            onClick={this.handleTrigger}
-                        >
-                            <img src={trigger} alt="+" />
-                        </button>
+            <div className="yet-another-wrapper">
+                {shouldShowOverlay ? overlay : ""}
+                <div className={`trigger-and-summary-container${shouldShowOverlay ? " reactive" : ""}`}>
+                    { shouldShowSummary ? summary : ""}
+                    <div className="trigger-wrapper">
+                        {reacted}
+                        <div className="trigger-with-reactions">
+                            {isTriggered ? (
+                                <Reactions
+                                    reactions={reactions}
+                                    handleReaction={this.handleReaction}
+                                />
+                            ) : ""
+                            }
+                            <button
+                                className="trigger"
+                                onClick={this.showReactionsList}
+                            >
+                                <img src={trigger} alt="+" />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
