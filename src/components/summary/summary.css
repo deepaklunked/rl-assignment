@@ -5,6 +5,10 @@
     height: var(--summary-height);
     min-width: var(--summary-min-width);
     font-size: var(--summary-font-size);
+    position: absolute;
+    top: -130px;
+    left: calc(-100px - 100%);
+    z-index: 500;
 }
 
 .summary .title {

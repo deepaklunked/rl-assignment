@@ -1,7 +1,5 @@
 .trigger-and-summary-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    position: relative;
 }
 
 .trigger-wrapper {
@@ -9,7 +7,11 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    margin-left: 4px;
+    position: relative;
+}
+
+.trigger-and-summary-container.reactive .trigger-wrapper {
+    z-index: 200;
 }
 
 .trigger-with-reactions {
