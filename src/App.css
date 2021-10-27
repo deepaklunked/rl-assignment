@@ -37,7 +37,7 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  justify-content: space-evenly;
+  justify-content: space-around;
   background-color: #e0e0e0;
   padding-right: 80px;
 }
