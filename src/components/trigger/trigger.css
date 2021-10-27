@@ -60,22 +60,3 @@
     align-items: center;
     font-size: var(--reaction-added-font);
 }
-
-.nav-list {
-    display: flex;
-    height: var(--nav-list-height);
-}
-
-.nav-list > .nav-item {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: var(--nav-item-padding) var(--summary-padding);
-    border-bottom: 2px solid var(--nav-item-border);
-    cursor: pointer;
-    transition: border-bottom 100ms linear;
-}
-
-.nav-list > .nav-item.active {
-    border-bottom: 2px solid var(--blue-accent);
-}
