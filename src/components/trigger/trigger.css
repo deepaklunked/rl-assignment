@@ -34,11 +34,6 @@
     background-color: var(--secondary-grey);
 }
 
-/* .trigger:active {
-    transform: scale(0.95) !important;
-    transition: transform 250ms linear;
-} */
-
 .added-reaction {
     display: flex;
     align-items: center;
@@ -50,6 +45,7 @@
     margin-right: var(--reaction-padding);
     transition: background-color 150ms linear, border 200ms linear;
     cursor: pointer;
+    position: relative;
 }
 
 .added-reaction.current-user {
@@ -57,8 +53,37 @@
     border: 1px solid var(--blue-accent);
 }
 
+.added-reaction.saving {
+    border: none;
+}
+
+.added-reaction.saving::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border: 1px solid var(--secondary-grey);
+    border-radius: var(--pill-border-radius);
+    background-color: var(--reaction-active-bg);
+    opacity: 0.5;
+    cursor: not-allowed;
+    animation: blink 2s infinite;
+    z-index: 500;
+}
+
 .added-reaction > .emoji {
     display: flex;
     align-items: center;
     font-size: var(--reaction-added-font);
+}
+
+@keyframes blink {
+    25% {
+        opacity: 0.8;
+    }
+    75% {
+        opacity: 0.2;
+    }
 }

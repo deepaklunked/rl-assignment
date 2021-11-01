@@ -39,6 +39,7 @@ class Trigger extends Component {
         contentReactions.forEach((x) => {
             if (x.id === item.id) {
                 tempVariableForReaction = x;
+                x.isBeingPersisted = true;
                 if (x.isCurrentUser === true) {
                     reactionType = "delete";
                     x.isCurrentUser = false;
@@ -73,13 +74,21 @@ class Trigger extends Component {
         this.setState({ contentReactions, userContentReactions });
         this.updateReactionData();
         apiPromise.then(response => {
+            Array.from(contentReactions).forEach(item => {
+                if (
+                    (reactionType === "delete" && item.id === newReaction.reaction_id) ||
+                    (reactionType === "add" && item.id === response.data.reaction_id)
+                ) {
+                    item.isBeingPersisted = false;
+                }
+            });
             if (reactionType === "delete") {
                 newReactions.delete(newReaction);
             } else {
                 newReactions.add(response.data);
             }
             this.getUserReactions();
-            this.setState({ newReactions });
+            this.setState({ contentReactions, newReactions });
         }).catch(error => {
             console.log("error in submission", error);
             contentReactions.forEach((x) => {
@@ -174,6 +183,7 @@ class Trigger extends Component {
                 if (item.isCurrentUser) {
                     currentUserReactions.forEach(item => { newReactions.add(item) })
                 }
+                item.isBeingPersisted = false;
                 contentReactions.add(item);
             });
         }
@@ -244,12 +254,12 @@ class Trigger extends Component {
         );
         const reacted = Array.from(contentReactions).map(item => {
             if(item.count > 0) {
-                const classes = "added-reaction" + (item.isCurrentUser ? " current-user" : "");
+                const classes = "added-reaction" + (item.isCurrentUser ? " current-user" : "") + (item.isBeingPersisted ? " saving": "");
                 return (
                     <div
                         key={item.id}
                         className={classes}
-                        onClick={() => { this.handleReaction(item)}}
+                        onClick={() => { if (!item.isBeingPersisted) this.handleReaction(item)}}
                         onMouseEnter={() => {
                             this.filterContent(item.emoji)
                         }}
